@@ -1,0 +1,100 @@
+{% for project in module.projects %}
+<canvas class="charts-pie" id="charts-{{project.id}}" title="{{project.name}}" data-status="{{project.status}}"
+  data-n="{{project.status.N}}"
+  data-w="{{project.status.W}}"
+  data-d="{{project.status.D}}"
+  data-c="{{project.status.C}}"
+  ></canvas>
+{% endfor %}
+<canvas id="myChart" width="300" height="300"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
+<script>
+    var ctx = document.getElementById('myChart').getContext('2d');
+    let ctx_projects = Array.from(document.getElementsByClassName("charts-pie"));
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['New', 'WIP', 'Done', 'Completed'],
+            datasets: [{
+                label: 'Status of Tasks',
+                data: [0, 0, 0, 0],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+    let charts_projects = {};
+
+    for (const ctx of ctx_projects) {
+      let chart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [
+                  ctx.dataset.n,
+                  ctx.dataset.w,
+                  ctx.dataset.d,
+                  ctx.dataset.c,
+                ],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                ],
+                label: ctx.title,
+            }],
+            labels: ['New', 'WIP', 'Done', 'Completed'],
+        },
+        options: {
+            responsive: true,
+            legend: {
+                position: 'top',
+            },
+            title: {
+                display: true,
+                text: ctx.title,
+            },
+            animation: {
+                animateScale: true,
+                animateRotate: true
+            }
+        }
+      });
+    }
+    async function update() {
+        let req = await fetch("http://127.0.0.1:8000/api/projects");
+        let projects = (await req.json()).projects;
+        let data = [0, 0, 0, 0];
+        for (const proj of projects) {
+            data[0] += proj.status.N;
+            data[1] += proj.status.W;
+            data[2] += proj.status.D;
+            data[3] += proj.status.C;
+        }
+        myChart.data.datasets[0].data = data;
+        myChart.update();
+
+    }
+    update();
+</script>

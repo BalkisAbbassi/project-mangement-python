@@ -1,0 +1,200 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'pm/css/bootstrap.min.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'pm/css/font-awesome.min.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'pm/css/style.css' %}">
+
+<div class="chat-main-row" id="app">
+    <div class="chat-main-wrapper">
+        <div class="col-xs-12 message-view task-chat-view" id="task_window">
+            <div class="chat-window">
+
+                <div class="chat-header">
+                    <div class="navbar">
+                        <div class="task-assign">
+                            <span class="assign-title">Projects </span>
+                            <a href="#" data-toggle="tooltip" data-placement="bottom" :title="proj.name" v-for="proj of projects" @click="project = proj" :key="proj.id">
+                              <img src="{% static 'pm/img/project.png' %}" :class="['avatar', proj.id === project.id ? 'active': '']" :alt="proj.name" height="20" width="20">
+                                </a>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="chat-contents task-chat-contents">
+                    <div class="chat-content-wrap">
+                        <div class="chat-wrap-inner">
+                            <div class="chat-box">
+                                <div class="chats">
+                                    <div v-for="msg of msgs" v-if="msg.project == project.id" :key="msg.id">
+
+                                        <div class="task-information" v-if="msg.type == 'notification'">
+                                            <span class="task-info-line"><span class="task-info-subject" v-html="msg.content"></span></span>
+                                            <div class="task-time" v-text="msg.time"></div>
+                                        </div>
+
+                                        <div class="chat chat-left" v-if="msg.type == 'message'">
+                                            <div class="chat-avatar">
+                                                <a href="#" class="avatar">
+                                                  <img alt="John Doe" src="{% static 'pm/img/user.jpg' %}" class="img-responsive img-circle">
+                                                </a>
+                                            </div>
+                                            <div class="chat-body">
+                                                <div class="chat-bubble">
+                                                    <div class="chat-content">
+                                                      <span class="task-chat-user" v-text="msg.from"></span> <span class="chat-time" v-text="msg.time"></span>
+                                                        <p v-html="msg.content"></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="chat chat-left" v-if="msg.type === 'document'">
+                                            <div class="chat-body">
+                                                <div class="chat-bubble">
+                                                    <div class="chat-content">
+                                                      <span class="task-chat-user">New</span> <span class="file-attached">file <i class="fa fa-paperclip" aria-hidden="true"></i></span> <span class="chat-time" v-text="msg.time"></span>
+                                                        <p v-html="msg.content"></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-footer">
+                    <div class="message-bar">
+                        <div class="message-inner">
+                            <div class="message-area">
+                                <div class="input-group">
+                                    <textarea class="form-control" v-model="message" placeholder="Type message..."></textarea>
+                                    <span class="input-group-btn">
+                                          <button class="btn btn-primary" type="button" @click="send()"><i class="fa fa-send"></i></button>
+                                        </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+  /*
+    let projects = [{
+        name: "System CRM",
+        id: 1,
+        members: ["Ali Salah", "Moez Bouhlel"],
+    }, ];
+    let msgs = [{
+            id: 1,
+            type: "notification",
+            from: "system",
+            time: "Jan 26, 2015",
+            content: "Lesley Grauer created task",
+            project: 1,
+        },
+        {
+            id: 2,
+            type: "notification",
+            from: "system",
+            time: "Jan 26, 2015",
+            content: "Lesley Grauer added to Harvey Clinic",
+            project: 1,
+        },
+        {
+            id: 3,
+            type: "notification",
+            from: "system",
+            time: "Jan 26, 2015",
+            content: "Lesley Grauer assigned to John Doe",
+            project: 1,
+        },
+        {
+            id: 4,
+            type: "notification",
+            from: "system",
+            time: "Sep 28, 9:09pm",
+            content: "John Doe changed the due date to",
+            project: 1,
+        },
+        {
+            id: 5,
+            type: "message",
+            from: "John Doe",
+            time: "8:35 am",
+            content: "I'm just looking around.<br/>Will you tell me something about yourself?",
+            project: 1,
+        },
+        {
+            id: 6,
+            type: "notification",
+            from: "system",
+            time: "Today at 9:27am",
+            content: "<span class='task-success'>John Doe completed this task</span>",
+            project: 1,
+        },
+        {
+            id: 8,
+            type: "document",
+            from: "system",
+            time: "Yesterday at 9:16pm",
+            content: `
+<i class="fa fa-file"></i> <a href="http://localhost:8000/upload/{instance.fichier}" target="_blank">{instance.titre}</a><br>
+{instance.description}
+`,
+            project: 1,
+        },
+    ]
+  */
+    const app = new Vue({
+        el: "#app",
+        delimiters: ['[[', ']]'],
+        data: {
+            projects: [],
+            user: {
+                id: 2,
+            },
+          project: {},
+            msgs: [],
+            message: "",
+        },
+        methods: {
+          async update() {
+              let req = await fetch("http://127.0.0.1:8000/api/messages");
+              this.msgs = (await req.json()).messages;
+          },
+            async send() {
+              let msg = {
+                    type: "message",
+                    from: this.user.id,
+                    time: (new Date()).toISOString(),
+                    content: this.message.trim().replace(/\n/g, "<br/>"),
+                    project: this.project.id,
+                };
+                // this.msgs.push();
+              await fetch("http://127.0.0.1:8000/api/send", {
+                method: "POST",
+                body: JSON.stringify(msg),
+              });
+              this.message = "";
+            },
+        },
+      async mounted() {
+        setInterval(async () => await this.update(), 1000);
+        let req;
+        req = await fetch("http://127.0.0.1:8000/api/me");
+        this.user = await req.json();
+        req = await fetch("http://127.0.0.1:8000/api/projects");
+        this.projects = (await req.json()).projects;
+        this.project = this.projects[0];
+      },
+    });
+</script>

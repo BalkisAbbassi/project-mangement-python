@@ -1,0 +1,94 @@
+<div class="panel-body">
+    <div class="table-responsive">
+        <table class="table table-striped custom-table m-b-0">
+            <tbody>
+                {% for task in module.tasks %}
+                <tr>
+                    <td>
+                      <h2><a href="/pm/task/{{ task.id }}/change/">{{ task.name }}</a></h2>
+                        <small class="block text-ellipsis">
+                          <span class="text-xs">Project:</span> <span class="text-muted">{{ task.project }}, </span>
+                          <span class="text-xs">Assigned to: </span> <span class="text-muted">{{ task.assigned_to }}</span>
+														</small>
+                    </td>
+                    <td>
+                        <div class="progress progress-xs progress-striped">
+                          <div class="progress-bar bg-success" role="progressbar" data-toggle="tooltip" title="" style="width: {{ task.progress }}%" data-original-title="{{ task.progress }}%"></div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<style>
+
+.table-striped > tbody > tr:nth-of-type(2n+1) {
+	background-color: #f6f6f6;
+}
+table.table td .avatar {
+	margin: 0 5px 0 0;
+}
+table.table td h2 {
+	font-size: inherit;
+	font-weight: 400;
+	margin: 0;
+	padding: 0;
+	vertical-align: middle;
+}
+table.table td h2 a {
+	color: #757575;
+}
+table.table td h2 a:hover {
+	color: #f43b48;
+}
+table.table td h2 span {
+	color: #9e9e9e;
+	display: block;
+	font-size: 12px;
+	margin-top: 3px;
+}
+.custom-table tr {
+	background-color: #fff;
+	box-shadow: 0 0 3px #e5e5e5;
+}
+.table.custom-table > tbody > tr > td,
+.table.custom-table > tbody > tr > th,
+.table.custom-table > tfoot > tr > td,
+.table.custom-table > tfoot > tr > th,
+.table.custom-table > thead > tr > td,
+.table.custom-table > thead > tr > th {
+	padding: 10px 20px;
+	vertical-align: middle;
+}
+.table.custom-table > tbody > tr > td:first-of-type {
+    width: 70%;
+}
+.table.table-white {
+	background-color: #fff;
+}
+.table > tbody > tr > td {
+	font-weight: 300;
+}
+.table > thead > tr > th {
+	font-weight: normal;
+}
+.table-striped > tbody > tr:nth-of-type(2n+1) {
+	background-color: #f6f6f6;
+}
+
+.progress {
+    height: 5px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
+}
+.bg-success, .label-success {
+    background-color: #55ce63;
+      height: 100%;
+}
+</style>
